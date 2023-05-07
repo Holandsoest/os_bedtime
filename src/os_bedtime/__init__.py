@@ -69,27 +69,43 @@ def computer_shutdown(reboot=False, force=False, seconds_delay=0, message="") ->
         os.system(command)
     else:
         raise RuntimeError("I have no implementation for that operating system :'(")
-def computer_hostage(function:function) -> None:
-    """
-    # ! Work In Progress ! COMING SOON !
-    A blocking code that will keep the computer hostage.
-    As soon as:
-    - you move the mouse
-    - you type on the keyboard
-    - add / remove devices from device manager
-    This `computer_hostage`-function will call `function`.
-    It does only happen once.
+# def computer_hostage(function) -> None:
+#     """
+#     # ! Work In Progress ! COMING SOON !
+#     A blocking code that will keep the computer hostage.
+#     As soon as:
+#     - you move the mouse
+#     - you type on the keyboard
+#     - add / remove devices from device manager
+#     This `computer_hostage`-function will call `function`.
+#     It does only happen once.
     
-    This can be used for example to `computer_hostage(function=computer_shutdown)` to shutdown the computer as something happens.
-    This way you can display your computer, but as soon as someone tries to use the computer it shuts down.
+#     This can be used for example to `computer_hostage(function=computer_shutdown)` to shutdown the computer as something happens.
+#     This way you can display your computer, but as soon as someone tries to use the computer it shuts down.
+    
+#     Implemented for WINDOWS.
+#     #### TODO:
+#     ---
+#     - Checking the mouse with https://pythonhosted.org/pynput/mouse.html#controlling-the-mouse
+#     - Listen for devices https://stackoverflow.com/questions/469243/how-can-i-listen-for-usb-device-inserted-events-in-linux-in-python 
+#     - Listen for Keyboard strokes https://pythonhosted.org/pynput/ https://stackoverflow.com/questions/24072790/how-to-detect-key-presses 
+#     - 
+#     """
+#     print("Feature coming soon.")
+#     pass
+def computer_lock() -> None:
+    """Locks your computer.
     
     Implemented for WINDOWS.
     #### TODO:
     ---
-    - Checking the mouse with https://pythonhosted.org/pynput/mouse.html#controlling-the-mouse
-    - Listen for devices https://stackoverflow.com/questions/469243/how-can-i-listen-for-usb-device-inserted-events-in-linux-in-python 
-    - Listen for Keyboard strokes https://pythonhosted.org/pynput/ https://stackoverflow.com/questions/24072790/how-to-detect-key-presses 
-    - 
+    - Implement for Linux ???
+    - Test OSX
     """
-    print("Feature coming soon.")
+    if psutil.OSX:
+        os.system("pmset displaysleepnow")
+    elif psutil.WINDOWS:
+        os.system(f"Rundll32.exe user32.dll,LockWorkStation")
+    else:
+        raise RuntimeError("I have no implementation for that operating system :'(")
     pass
