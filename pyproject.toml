@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling","psutil"]
+build-backend = "hatchling.build"
+[project]
+name = "os_bedtime"
+version = "0.0.1"
+authors = [
+  { name="Koen van der Wolf", email="holandsoest@gmail.com" },
+]
+description = "Put your computer to sleep, etc."
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Holandsoest/os_bedtime"
+"Bug Tracker" = "https://github.com/Holandsoest/os_bedtime/issues"
