@@ -35,3 +35,30 @@ def computer_sleep(hibernate=False, wake_up_events_disabled=False) -> None:
         os.system(f"rundll32.exe powrprof.dll,SetSuspendState {int(hibernate)},1,{int(wake_up_events_disabled)}")
     else:
         raise RuntimeError("I have no implementation for that operating system :'(")
+def computer_shutdown(reboot=False, force=False, seconds_delay=0, message="") -> None:
+    """Function will put the computer in sleep mode.
+
+    Implemented for WINDOWS.
+    #### TODO:
+    ---
+    - Write implementation for OSX and LINUX
+
+    #### Args:
+    ---
+    - `reboot` When `true` the system will restart after shutdown.
+    - `force` When `true` kills all applications and does not give them time to save their data. DANGEROUS
+    - `seconds_delay` The amount of seconds that the system will have to wait before actually shutting down. You want to use this if you use `message`.
+    - `message` The message you want the user to read when this command is called.
+    #### Returns:
+    ---
+    `None`
+    """
+    if psutil.WINDOWS:
+        command = "shutdown"
+        command += " /r" if reboot else " /s"
+        if force: command += " /f"
+        if seconds_delay > 0: command += f" /t {int(seconds_delay)}"
+        if message != "": command += f' /c {str(message)}'
+        os.system(command)
+    else:
+        raise RuntimeError("I have no implementation for that operating system :'(")
