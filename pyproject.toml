@@ -3,7 +3,7 @@ requires = ["hatchling","psutil"]
 build-backend = "hatchling.build"
 [project]
 name = "os_bedtime"
-version = "0.0.4"
+version = "0.0.5"
 authors = [
   { name="Koen van der Wolf", email="holandsoest@gmail.com" },
 ]

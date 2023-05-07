@@ -41,7 +41,9 @@ def computer_shutdown(reboot=False, force=False, seconds_delay=0, message="") ->
     Implemented for WINDOWS.
     #### TODO:
     ---
-    - Write implementation for OSX and LINUX
+    - Write implementation for OSX
+    - Write implementation for LINUX of `seconds_delay`
+    - Test LINUX
 
     #### Args:
     ---
@@ -53,7 +55,12 @@ def computer_shutdown(reboot=False, force=False, seconds_delay=0, message="") ->
     ---
     `None`
     """
-    if psutil.WINDOWS:
+    if psutil.LINUX:
+        # NOTE: LINUX has no `seconds_delay`
+        command = "systemctl reboot" if reboot else "systemctl poweroff"
+        if force: command += " --force"
+        if message != "": command+=f' --message={message}'
+    elif psutil.WINDOWS:
         command = "shutdown"
         command += " /r" if reboot else " /s"
         if force: command += " /f"
