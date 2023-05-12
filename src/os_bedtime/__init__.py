@@ -3,25 +3,26 @@ import os
 # import time
 import psutil
 
-def computer_sleep(hibernate=False, wake_up_events_disabled=False) -> None:
+def computer_sleep(hibernate=False) -> None:
     """Function will put the computer in sleep mode.
 
-    Implemented for WINDOWS.
-    #### TODO:
+    Implemented for `WINDOWS 10`.
+    
+    ## TODO:
     ---
     - Write `hibernate` implementation for OSX
-    - Write `wake_up_events_disabled` for OSX and LINUX
     - Test `sleep` implementation for OSX and LINUX
     - Test `hibernate` implementation for LINUX
     - Write implementation for a blocking mode, where the program is blocked until it happened and the pc woke up again
 
-    #### Args:
+    ## Args:
     ---
     - `hibernate` When `true` the computer tries to hibernate in stead of sleeping
-    - `wake_up_events_disabled` When `true` the computer will not randomly* wake up. PS: It is not random, they are timer events often or another computer is trying to talk to you. But in the case of True you ignore all those events and the computer will only wake up because of the power-button being pressed. 
-    #### Returns:
+    ## Returns:
     ---
-    `None`
+    `None`  
+
+    This code is non-blocking
     """
     
     if psutil.OSX:
@@ -32,7 +33,11 @@ def computer_sleep(hibernate=False, wake_up_events_disabled=False) -> None:
         else:
             os.system("systemctl suspend")
     elif psutil.WINDOWS:
-        os.system(f"rundll32.exe powrprof.dll,SetSuspendState {int(hibernate)},1,{int(wake_up_events_disabled)}")
+        # Check the current power-plan for issues
+        if hibernate:
+            os.system(f'powercfg /hibernate ON')
+
+        os.system(f"rundll32.exe powrprof.dll,SetSuspendState {int(hibernate)},1,0")
     else:
         raise RuntimeError("I have no implementation for that operating system :'(")
 def computer_shutdown(reboot=False, force=False, seconds_delay=0, message="") -> None:
@@ -109,3 +114,5 @@ def computer_lock() -> None:
     else:
         raise RuntimeError("I have no implementation for that operating system :'(")
     pass
+if __name__ == '__main__':
+    computer_sleep(hibernate=True)
