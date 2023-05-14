@@ -13,7 +13,7 @@ If you feel like contributing. (OSX or Linux or improvements for Windows even) L
 
 ## How to install
 
-TBA
+`pip install os-bedtime`  
 
 ## **Issue:** Sleep issues
 
@@ -21,7 +21,7 @@ Your computer might be waking from sleep mode because certain peripheral devices
 
 ### **Windows:** Turn off wake-timers
 
-> Wake timers are timers that may wake your computer on a set time. Disabling this make this impossible until you re-enable > it.  
+> Wake timers are timers that may wake your computer on a set time. Disabling this make this impossible until you re-enable it.  
 > *If you use wake-timers to automatically wake your computer at 7 am or something, this will not work anymore.*
 > 
 > 1. Right-click Windows button. Select `Energy-management`  
@@ -34,7 +34,7 @@ Your computer might be waking from sleep mode because certain peripheral devices
 ### **Windows:** Turn off peripheral-devices access to wake your pc
 
 > Peripheral-devices (like for example your keyboard) have access to wake your computer out of sleep-mode.
-> For something like a keyboard this makes sense. You press the spacebar and the computer wakes up, but there are other devices where this might make less sense. For example a network device may wake your computer?
+> For something like a keyboard this makes sense. You press the space-bar and the computer wakes up, but there are other devices where this might make less sense. For example a network device may wake your computer?
 > 
 > 1. left-click the windows button. Type `CMD` and choose `Run as administrator`  
 > 2. It will prompt you if you did this and allow this... Allow  

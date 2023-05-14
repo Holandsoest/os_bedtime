@@ -1,11 +1,11 @@
 [build-system]
-requires = ["hatchling","psutil"]
+requires = ["hatchling","psutil","threading","pynput"]
 build-backend = "hatchling.build"
 [project]
 name = "os_bedtime"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
-  { name="Koen van der Wolf", email="holandsoest@gmail.com" },
+  { name="Holandsoest", email="holandsoest@gmail.com" },
 ]
 description = "Put your computer to sleep, etc."
 readme = "README.md"
