@@ -89,9 +89,7 @@ def computer_lock() -> None:
     else:
         raise RuntimeError("I have no implementation for that operating system :'(")
     pass
-def computer_hostage(function, listen_mouse=True, verbose=False) -> None:
-    import threading
-    import ctypes
+def computer_hostage(function, listen_mouse=True, listen_keyboard=True, verbose=False) -> None:
     """
     # ! Work In Progress ! COMING SOON !
     A blocking code that will keep the computer hostage.
@@ -113,6 +111,8 @@ def computer_hostage(function, listen_mouse=True, verbose=False) -> None:
     - Listen for Keyboard strokes https://pythonhosted.org/pynput/ https://stackoverflow.com/questions/24072790/how-to-detect-key-presses 
     - 
     """
+    import threading
+    import ctypes
     def on_move(x, y):
         if verbose: print(f'Pointer moved to ({x}, {y})')
         return False
@@ -120,7 +120,13 @@ def computer_hostage(function, listen_mouse=True, verbose=False) -> None:
         if verbose: print(f'{"Pressed" if pressed else "Released"} at ({x}, {y})')
         return False
     def on_scroll(x, y, dx, dy):
-        if verbose: print('Scrolled ({x}, {y})')
+        if verbose: print(f'Scrolled ({x}, {y})')
+        return False
+    def on_press(key):
+        print(f'{key} pressed')
+        return False
+    def on_release(key):
+        print(f'{key} released')
         return False
     
     class StopableThread(threading.Thread): # https://www.geeksforgeeks.org/python-different-ways-to-kill-a-thread/
@@ -157,12 +163,25 @@ def computer_hostage(function, listen_mouse=True, verbose=False) -> None:
                 if verbose: print('Mouse trigger')
                 self.function()
             finally: pass
-
-    if listen_mouse:
-        mouse_listener = MouseListener(function)
-        mouse_listener.start()
-        time.sleep(5)
-        mouse_listener.stop_thread()
-        mouse_listener.join()
+    class KeyboardListener(StopableThread):
+        def run(self):
+            from pynput.keyboard import Key, Listener
+            try:
+                with Listener(
+                    on_press=on_press,
+                    on_release=on_release) as listener:
+                        listener.join()
+                if verbose: print('Keyboard trigger')
+                self.function()
+            finally: pass
+    listeners = []
+    if listen_mouse: listeners.append(MouseListener(function))
+    if listen_keyboard: listeners.append(KeyboardListener(function))
+    for listerer in listeners:
+        listerer.start()
+    time.sleep(5)
+    for listerer in listeners:
+        listerer.stop_thread()
+        listerer.join()
 if __name__ == '__main__':
-    computer_hostage(computer_lock, verbose=True)
+    computer_hostage(computer_lock, verbose=False)
