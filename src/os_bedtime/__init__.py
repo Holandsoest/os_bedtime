@@ -69,7 +69,7 @@ def computer_shutdown(reboot=False, force=False, seconds_delay=0, message="") ->
         command += " /r" if reboot else " /s"
         if force: command += " /f"
         if seconds_delay > 0: command += f" /t {int(seconds_delay)}"
-        if message != "": command += f' /c {str(message)}'
+        if message != "": command += f' /c {message}'
         os.system(command)
     else:
         raise RuntimeError("I have no implementation for that operating system :'(")
@@ -89,28 +89,31 @@ def computer_lock() -> None:
     else:
         raise RuntimeError("I have no implementation for that operating system :'(")
     pass
-def computer_hostage(function, listen_mouse=True, listen_keyboard=True, verbose=False) -> None:
-    """
-    # ! Work In Progress ! COMING SOON !
-    A blocking code that will keep the computer hostage.
-    As soon as:
-    - you move the mouse
-    - you type on the keyboard
-    - add / remove devices from device manager
-    This `computer_hostage`-function will call `function`.
-    It does only happen once.
+def computer_hostage(function, listen_mouse=True, listen_keyboard=True, timeout_seconds=-1, verbose=False) -> bool:
+    """A blocking code that can keep the computer hostage for input devices.
+    ## args
+    - `function` If the mouse_listener, keyboard_listener or event_listener get a trigger it will run this function. You can use a lambda to also parse in arguments.  
+    - `listen_mouse` When `True` (default): runs the `function` if you scroll, move or click your mouse.
+    - `listen_keyboard` When `True` (default): runs the `function` if you press or release a key on your keyboard.
+    - `timeout_seconds` (int) after this amount of seconds the listeners will stop without calling the `function` and it will `return False`  
+    negative numbers will result in 100 years of delay.
+    - `verbose` (default=False) When `True`: Causes this script to explain what triggered it with `print()`s
+    ## returns
+    - `True` if a listener got triggered.
+    - `False` if the `timeout_seconds` timer expired.
+    - This function is blocking
     
-    This can be used for example to `computer_hostage(function=computer_shutdown)` to shutdown the computer as something happens.
+    This can be used for example to `computer_hostage(function=lambda:computer_shutdown(seconds_delay=1, message='Whoa! You scared me! What is wrong with you???'))` to shutdown the computer as something happens.
     This way you can display your computer, but as soon as someone tries to use the computer it shuts down.
     
     Implemented for WINDOWS.
     #### TODO:
     ---
-    - Checking the mouse with https://pythonhosted.org/pynput/mouse.html#controlling-the-mouse
     - Listen for devices https://stackoverflow.com/questions/469243/how-can-i-listen-for-usb-device-inserted-events-in-linux-in-python 
-    - Listen for Keyboard strokes https://pythonhosted.org/pynput/ https://stackoverflow.com/questions/24072790/how-to-detect-key-presses 
-    - 
     """
+    import pynput.mouse     # Checking the mouse with https://pythonhosted.org/pynput/mouse.html#controlling-the-mouse
+    import pynput.keyboard  # Listen for Keyboard strokes https://pythonhosted.org/pynput/ https://stackoverflow.com/questions/24072790/how-to-detect-key-presses 
+
     import threading
     import ctypes
     def on_move(x, y):
@@ -123,10 +126,10 @@ def computer_hostage(function, listen_mouse=True, listen_keyboard=True, verbose=
         if verbose: print(f'Scrolled ({x}, {y})')
         return False
     def on_press(key):
-        print(f'{key} pressed')
+        if verbose: print(f'{key} pressed')
         return False
     def on_release(key):
-        print(f'{key} released')
+        if verbose: print(f'{key} released')
         return False
     
     class StopableThread(threading.Thread): # https://www.geeksforgeeks.org/python-different-ways-to-kill-a-thread/
@@ -134,9 +137,7 @@ def computer_hostage(function, listen_mouse=True, listen_keyboard=True, verbose=
             threading.Thread.__init__(self)
             self.function = function
             self.verbose = verbose
-        def run(self):
-            """Overwrite this function"""
-            pass
+            self.should_stop = False
         def get_id(self):
             # returns id of the respective thread
             if hasattr(self, '_thread_id'):
@@ -145,43 +146,69 @@ def computer_hostage(function, listen_mouse=True, listen_keyboard=True, verbose=
                 if thread is self:
                     return id
         def stop_thread(self):
+            self.should_stop = True
+            try:
+                self.listener.stop()
+                self.listener.join()
+            finally: pass
             thread_id = self.get_id()
-            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,
-                ctypes.py_object(SystemExit))
+            res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, ctypes.py_object(SystemExit))
             if res > 1:
                 ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
                 print('Exception raise failure')
+                return
     class MouseListener(StopableThread):
         def run(self):
-            from pynput.mouse import Listener
             try:
-                with Listener(
-                    on_move=on_move,
-                    on_click=on_click,
-                    on_scroll=on_scroll) as listener:
-                        listener.join()
+                self.listener = pynput.mouse.Listener( on_move=on_move, on_click=on_click, on_scroll=on_scroll )
+                self.listener.start()
+                self.listener.join()
+                
+                if self.should_stop: return
+
                 if verbose: print('Mouse trigger')
                 self.function()
             finally: pass
     class KeyboardListener(StopableThread):
         def run(self):
-            from pynput.keyboard import Key, Listener
             try:
-                with Listener(
-                    on_press=on_press,
-                    on_release=on_release) as listener:
-                        listener.join()
+                self.listener = pynput.keyboard.Listener( on_press=on_press, on_release=on_release )
+                self.listener.start()
+                self.listener.join()
+
+                if self.should_stop: return
+
                 if verbose: print('Keyboard trigger')
                 self.function()
             finally: pass
+    
+    # Start the listeners
     listeners = []
-    if listen_mouse: listeners.append(MouseListener(function))
-    if listen_keyboard: listeners.append(KeyboardListener(function))
+    if listen_mouse:    listeners.append(MouseListener(function,verbose))
+    if listen_keyboard: listeners.append(KeyboardListener(function,verbose))
     for listerer in listeners:
         listerer.start()
-    time.sleep(5)
-    for listerer in listeners:
-        listerer.stop_thread()
-        listerer.join()
+
+    # Wait until something happens
+    did_trigger = False
+    if timeout_seconds < 1: timeout_seconds = 3153600000 # 100 years
+    while (timeout_seconds > 0):
+        time.sleep(1)
+        timeout_seconds -= 1
+        for listener in listeners:
+            if not listener.is_alive():
+                # it activated the payload
+                did_trigger = True
+                timeout_seconds = 0
+                break
+    
+    # Either the timer expired or a listener triggered
+    for listener in listeners:
+        listener.stop_thread()
+    for listener in listeners:
+        listener.join()
+
+    # Returns True if listener triggered
+    return did_trigger
 if __name__ == '__main__':
-    computer_hostage(computer_lock, verbose=False)
+    print(computer_hostage(lambda:print('sample text'), timeout_seconds=3, verbose=True))
