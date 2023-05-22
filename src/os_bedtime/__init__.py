@@ -69,7 +69,7 @@ def computer_shutdown(reboot=False, force=False, seconds_delay=0, message="") ->
         command += " /r" if reboot else " /s"
         if force: command += " /f"
         if seconds_delay > 0: command += f" /t {int(seconds_delay)}"
-        if message != "": command += f' /c {message}'
+        if message != '': command += f' /c "{message}"'
         os.system(command)
     else:
         raise RuntimeError("I have no implementation for that operating system :'(")
@@ -212,5 +212,6 @@ def computer_hostage(function, listen_mouse=True, listen_keyboard=True, timeout_
 
     # Returns True if listener triggered
     return did_trigger
-# if __name__ == '__main__':
+if __name__ == '__main__':
+    computer_shutdown(seconds_delay=60, message='Whoa! You scared me! What is wrong with you???')
 #     print(computer_hostage(lambda:print('Payload trigger example'), timeout_seconds=5, verbose=True))
