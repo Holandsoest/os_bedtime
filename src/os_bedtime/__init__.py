@@ -110,6 +110,8 @@ def computer_hostage(function, listen_mouse=True, listen_keyboard=True, timeout_
     #### TODO:
     ---
     - Listen for devices https://stackoverflow.com/questions/469243/how-can-i-listen-for-usb-device-inserted-events-in-linux-in-python 
+    The idea is that when you plug in a device like a mouse or bluetooth dongle or usb with dangerous payload: The `function` gets triggered.  
+    If you have any idea how to do this, please PLEASE make an issue with a suggestion. I gave up.  
     """
     import pynput.mouse     # Checking the mouse with https://pythonhosted.org/pynput/mouse.html#controlling-the-mouse
     import pynput.keyboard  # Listen for Keyboard strokes https://pythonhosted.org/pynput/ https://stackoverflow.com/questions/24072790/how-to-detect-key-presses 
@@ -211,4 +213,4 @@ def computer_hostage(function, listen_mouse=True, listen_keyboard=True, timeout_
     # Returns True if listener triggered
     return did_trigger
 if __name__ == '__main__':
-    print(computer_hostage(lambda:print('sample text'), timeout_seconds=3, verbose=True))
+    print(computer_hostage(lambda:print('Payload trigger example'), timeout_seconds=5, verbose=True))
