@@ -212,5 +212,5 @@ def computer_hostage(function, listen_mouse=True, listen_keyboard=True, timeout_
 
     # Returns True if listener triggered
     return did_trigger
-if __name__ == '__main__':
-    print(computer_hostage(lambda:print('Payload trigger example'), timeout_seconds=5, verbose=True))
+# if __name__ == '__main__':
+#     print(computer_hostage(lambda:print('Payload trigger example'), timeout_seconds=5, verbose=True))

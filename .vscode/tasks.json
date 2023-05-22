@@ -1,0 +1,12 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "py -m pip install --upgrade build;py -m build;py -m pip install --upgrade twine;echo \n\nUploading to testpypi...;py -m twine upload --repository testpypi dist/*;echo Now do it again for realsies;py -m twine upload dist/*"
+        }
+    ]
+}
